@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitácora Higiene de Almacén (BIT-HA-04) - Tanuavi</title>
+    <style>
+        :root {
+            --primary: #1e4620;
+            --secondary: #2e7d32;
+            --bg: #f4f6f8;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .header-title {
+            text-align: center;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .header-title h1 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 1.5em;
+        }
+
+        .header-title h3 {
+            margin: 5px 0 0 0;
+            color: #555;
+            font-weight: normal;
+        }
+
+        .info-almacenes {
+            background-color: #e8f5e9;
+            border-left: 5px solid var(--secondary);
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            background: #fafafa;
+            padding: 20px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 0.85em;
+            margin-bottom: 5px;
+            color: #444;
+        }
+
+        input[type="date"], input[type="text"], select, textarea {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding-top: 5px;
+        }
+
+        .checkbox-group label {
+            font-weight: normal;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .btn-submit {
+            grid-column: 1 / -1;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1em;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--secondary);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82em;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px 6px;
+            text-align: center;
+            word-wrap: break-word;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: normal;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .obs-td {
+            text-align: left;
+            max-width: 200px;
+            color: #d32f2f;
+            font-weight: bold;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        .module-tabs, .report-controls {
+            display: flex;
+            align-items: end;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+
+        .module-tabs {
+            gap: 8px;
+            border-bottom: 1px solid #b7cfb8;
+        }
+
+        .module-tabs a, .report-controls button {
+            display: inline-block;
+            border: 0;
+            border-radius: 4px;
+            padding: 10px 14px;
+            color: #fff;
+            background: var(--primary);
+            font: inherit;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .module-tabs a {
+            color: #1e4620;
+            background: #e8f5e9;
+        }
+
+        .module-tabs a[aria-current="page"] {
+            color: #fff;
+            background: var(--primary);
+        }
+
+        .history-note {
+            margin: -8px 0 18px;
+            color: #365f38;
+            font-size: 0.9em;
+        }
+
+        .module-tabs a:focus-visible, .report-controls button:focus-visible {
+            outline: 3px solid #80b780;
+            outline-offset: 2px;
+        }
+
+        .report-controls .form-group {
+            min-width: 160px;
+        }
+
+        .report-controls input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font: inherit;
+        }
+
+        .report-controls button.secondary {
+            background: #2e7d32;
+        }
+
+        .status-message {
+            margin: 0 0 15px;
+            color: #1e4620;
+            font-weight: bold;
+        }
+
+        .status-message.error {
+            color: #b42318;
+        }
+
+        @media (max-width: 650px) {
+            body { padding: 8px; }
+            .container { padding: 16px; }
+            .report-controls { align-items: stretch; flex-direction: column; }
+            .report-controls .form-group, .report-controls button { width: 100%; }
+            .checkbox-group { flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-title">
+        <h1>PRODUCTORES DE GUAYABA TANUAVI S.C. DE R.L. DE C.V.</h1>
+        <h3>Bitácora Higiene de Almacén (BIT-HA-04) - Ubicación: Taretan, Michoacán</h3>
+    </div>
+    <nav class="module-tabs" aria-label="Secciones del sistema">
+        <a href="/sistema.html">Regresar al inventario</a>
+        <a href="/bitacoradelimpieza.html" aria-current="page">Bitácora de limpieza</a>
+    </nav>
+    <p class="history-note">Los registros se conservan al regresar al inventario o cerrar sesión. Consulta limpiezas anteriores usando los filtros de fecha.</p>
+
+    <div class="info-almacenes">
+        <span><strong>1)</strong> ALMACÉN MATERIAL DE EMBALAJE</span>
+        <span><strong>2)</strong> ÁREA DE LIMPIEZA</span>
+        <span><strong>3)</strong> CUARTO DE MANTENIMIENTO</span>
+    </div>
+
+    <form id="bitacoraForm">
+        <div class="form-group">
+            <label for="fecha">FECHA:</label>
+            <input type="date" id="fecha" required>
+        </div>
+
+        <div class="form-group">
+            <label for="almacen"># ALMACÉN:</label>
+            <select id="almacen" required>
+                <option value="1">1 - Almacén Material Embalaje</option>
+                <option value="2">2 - Área de Limpieza</option>
+                <option value="3">3 - Cuarto de Mantenimiento</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>ACTIVIDAD REALIZADA:</label>
+            <div class="checkbox-group">
+                <input type="checkbox" id="act_s" name="act" value="S"> <label for="act_s">S (Sacudido)</label>
+                <input type="checkbox" id="act_l" name="act" value="L"> <label for="act_l">L (Lavado)</label>
+                <input type="checkbox" id="act_sa" name="act" value="SA"> <label for="act_sa">SA (Sanitizado)</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="molecula">MOLÉCULA Y PPM:</label>
+            <input type="text" id="molecula" placeholder="Ej. ____________">
+        </div>
+
+        <div class="form-group">
+            <label for="ventiladores">LIMPIEZA DE VENTILADORES:</label>
+            <select id="ventiladores">
+                <option value="SI">SI</option>
+                <option value="NO">NO</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="coladeras">LIMPIEZA DE COLADERAS:</label>
+            <select id="coladeras">
+                <option value="SI">SI</option>
+                <option value="NO">NO</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="lamparas">LIMPIEZA LÁMPARAS Y TECHO:</label>
+            <select id="lamparas">
+                <option value="SI">SI</option>
+                <option value="NO">NO</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="pisos">LIMPIEZA DE PISOS:</label>
+            <select id="pisos">
+                <option value="SI">SI</option>
+                <option value="NO">NO</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="estantes">LIMPIEZA ESTANTES O TARIMAS:</label>
+            <select id="estantes">
+                <option value="SI">SI</option>
+                <option value="NO">NO</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="orden">MATERIALES ORDENADOS / PROTEGIDOS:</label>
+            <select id="orden">
+                <option value="SI">SI</option>
+                <option value="NO">NO</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="senalitica">SEÑALÍTICA COMPLETA:</label>
+            <select id="senalitica">
+                <option value="SI">SI</option>
+                <option value="NO">NO</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="accion">¿REQUIERE ACCIÓN CORRECTIVA?:</label>
+            <select id="accion">
+                <option value="NO">NO</option>
+                <option value="SI">SI</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="realiza">QUIEN REALIZA:</label>
+            <input type="text" id="realiza" value="Araceli" maxlength="120" required>
+        </div>
+
+        <div class="form-group">
+            <label for="verifica">QUIEN VERIFICA:</label>
+            <input type="text" id="verifica" placeholder="Nombre supervisor" maxlength="120">
+        </div>
+
+        <div class="form-group full-width">
+            <label for="observaciones">OBSERVACIONES / HALLAZGOS (SUPERVISOR):</label>
+            <textarea id="observaciones" rows="2" maxlength="2000" placeholder="Ej. En el cuarto de mantenimiento salió una rata. Se requiere fumigación."></textarea>
+        </div>
+
+        <button type="submit" class="btn-submit">Guardar Registro</button>
+    </form>
+
+    <p id="statusMessage" class="status-message" role="status" aria-live="polite" hidden></p>
+    <section class="report-controls" aria-label="Filtros y envío de reportes">
+        <div class="form-group">
+            <label for="desde">DESDE:</label>
+            <input type="date" id="desde">
+        </div>
+        <div class="form-group">
+            <label for="hasta">HASTA:</label>
+            <input type="date" id="hasta">
+        </div>
+        <button type="button" id="filtrar">Filtrar registros</button>
+        <button type="button" class="secondary" id="descargar">Descargar Excel</button>
+        <div class="form-group">
+            <label for="correo">ENVIAR REPORTE A:</label>
+            <input type="email" id="correo" maxlength="254" placeholder="correo@empresa.com" required>
+        </div>
+        <button type="button" class="secondary" id="enviarCorreo">Enviar Excel por correo</button>
+    </section>
+
+    <div class="table-responsive">
+        <table id="tablaReporte">
+            <thead>
+                <tr>
+                    <th>FECHA</th>
+                    <th># ALMACÉN</th>
+                    <th>ACTIVIDAD REALIZADA</th>
+                    <th>MOLÉCULA Y PPM</th>
+                    <th>LIMPIEZA VENTILADORES</th>
+                    <th>LIMPIEZA COLADERAS</th>
+                    <th>LIMPIEZA LÁMPARAS/TECHO</th>
+                    <th>LIMPIEZA PISOS</th>
+                    <th>LIMPIEZA ESTANTES</th>
+                    <th>ORDENADO / PROTEGIDO</th>
+                    <th>SEÑALÍTICA COMPLETA</th>
+                    <th>ACCIÓN CORRECTIVA</th>
+                    <th>OBSERVACIONES</th>
+                    <th>QUIEN REALIZA</th>
+                    <th>QUIEN VERIFICA</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="/auth.js"></script>
+<script>
+    const form = document.getElementById('bitacoraForm');
+    const tbody = document.querySelector('#tablaReporte tbody');
+    const statusMessage = document.getElementById('statusMessage');
+    const yesNoFields = [
+        ['ventiladores', 'ventiladores'],
+        ['coladeras', 'coladeras'],
+        ['lamparas', 'lamparas_techo'],
+        ['pisos', 'pisos'],
+        ['estantes', 'estantes_tarimas'],
+        ['orden', 'materiales_ordenados'],
+        ['senalitica', 'senalitica_completa'],
+        ['accion', 'accion_correctiva']
+    ];
+
+    function showMessage(message, isError = false) {
+        statusMessage.textContent = message;
+        statusMessage.classList.toggle('error', isError);
+        statusMessage.hidden = !message;
+    }
+
+    function reportQuery() {
+        const params = new URLSearchParams();
+        const from = document.getElementById('desde').value;
+        const to = document.getElementById('hasta').value;
+        if (from) params.set('desde', from);
+        if (to) params.set('hasta', to);
+        return params.toString();
+    }
+
+    function appendCell(row, value, className = '') {
+        const cell = document.createElement('td');
+        cell.textContent = value;
+        if (className) cell.className = className;
+        row.appendChild(cell);
+    }
+
+    function renderRecords(records) {
+        tbody.replaceChildren();
+        for (const record of records) {
+            const row = document.createElement('tr');
+            appendCell(row, record.fecha);
+            appendCell(row, String(record.almacen));
+            appendCell(row, record.actividades.join(', '));
+            appendCell(row, record.molecula_ppm || '—');
+            for (const [, field] of yesNoFields.slice(0, 7)) {
+                appendCell(row, record[field] ? 'SI' : 'NO');
+            }
+            appendCell(row, record.accion_correctiva ? 'SI' : 'NO');
+            appendCell(row, record.observaciones || 'Sin observaciones', 'obs-td');
+            appendCell(row, record.realiza);
+            appendCell(row, record.verifica || '');
+            tbody.appendChild(row);
+        }
+        if (records.length === 0) {
+            const row = document.createElement('tr');
+            const cell = document.createElement('td');
+            cell.colSpan = 15;
+            cell.textContent = 'No hay registros para el periodo seleccionado.';
+            row.appendChild(cell);
+            tbody.appendChild(row);
+        }
+    }
+
+    async function loadRecords() {
+        const query = reportQuery();
+        const records = await window.supabaseAuth.request(
+            `/api/bitacora-limpieza${query ? `?${query}` : ''}`
+        );
+        renderRecords(records);
+        showMessage(`${records.length} registro${records.length === 1 ? '' : 's'} encontrado${records.length === 1 ? '' : 's'}.`);
+    }
+
+    function buildRecord() {
+        const record = {
+            fecha: document.getElementById('fecha').value,
+            almacen: Number(document.getElementById('almacen').value),
+            actividades: Array.from(document.querySelectorAll('input[name="act"]:checked'), checkbox => checkbox.value),
+            molecula_ppm: document.getElementById('molecula').value,
+            realiza: document.getElementById('realiza').value,
+            verifica: document.getElementById('verifica').value,
+            observaciones: document.getElementById('observaciones').value
+        };
+        for (const [elementId, field] of yesNoFields) {
+            record[field] = document.getElementById(elementId).value === 'SI';
+        }
+        return record;
+    }
+
+    form.addEventListener('submit', async event => {
+        event.preventDefault();
+        if (!form.reportValidity()) return;
+        if (buildRecord().actividades.length === 0) {
+            showMessage('Selecciona al menos una actividad realizada (S, L o SA).', true);
+            return;
+        }
+        const button = form.querySelector('button[type="submit"]');
+        button.disabled = true;
+        try {
+            await window.supabaseAuth.request('/api/bitacora-limpieza', {
+                method: 'POST',
+                body: buildRecord()
+            });
+            form.reset();
+            document.getElementById('realiza').value = 'Araceli';
+            await loadRecords();
+            showMessage('Registro guardado correctamente en la base de datos.');
+        } catch (error) {
+            showMessage(error.message, true);
+        } finally {
+            button.disabled = false;
+        }
+    });
+
+    document.getElementById('filtrar').addEventListener('click', async () => {
+        try {
+            await loadRecords();
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    });
+
+    document.getElementById('descargar').addEventListener('click', async event => {
+        const button = event.currentTarget;
+        button.disabled = true;
+        try {
+            const token = await window.supabaseAuth.getAccessToken();
+            const query = reportQuery();
+            const response = await fetch(`/api/bitacora-limpieza/reporte.xlsx${query ? `?${query}` : ''}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (!response.ok) {
+                const result = await response.json();
+                throw new Error(result.error || 'No se pudo descargar el reporte.');
+            }
+            const file = await response.blob();
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(file);
+            link.download = response.headers.get('Content-Disposition')?.match(/filename="([^"]+)"/)?.[1]
+                || 'reporte-bitacora-limpieza.xlsx';
+            link.click();
+            URL.revokeObjectURL(link.href);
+            showMessage('Reporte Excel descargado.');
+        } catch (error) {
+            showMessage(error.message, true);
+        } finally {
+            button.disabled = false;
+        }
+    });
+
+    document.getElementById('enviarCorreo').addEventListener('click', async event => {
+        const email = document.getElementById('correo');
+        if (!email.reportValidity()) return;
+        const button = event.currentTarget;
+        button.disabled = true;
+        try {
+            const query = reportQuery();
+            const result = await window.supabaseAuth.request(
+                `/api/bitacora-limpieza/correo${query ? `?${query}` : ''}`,
+                { method: 'POST', body: { correo: email.value.trim() } }
+            );
+            showMessage(result.message);
+        } catch (error) {
+            showMessage(error.message, true);
+        } finally {
+            button.disabled = false;
+        }
+    });
+
+    loadRecords().catch(error => showMessage(error.message, true));
+</script>
+
+</body>
+</html>

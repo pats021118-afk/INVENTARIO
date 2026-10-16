@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="theme-color" content="#f5f7fb">
+	<title>Iniciar sesión | Portal</title>
+	<style>
+		:root {
+			color-scheme: light;
+			font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+			color: #182230;
+			background: #f5f7fb;
+			font-synthesis: none;
+			text-rendering: optimizeLegibility;
+		}
+		* { box-sizing: border-box; }
+		body {
+			min-height: 100vh;
+			margin: 0;
+			display: grid;
+			place-items: center;
+			padding: 32px 20px;
+			background: radial-gradient(circle at 12% 15%, #e5edff 0, transparent 28%), #f5f7fb;
+		}
+		.login-shell {
+			width: min(100%, 1040px);
+			min-height: 620px;
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			overflow: hidden;
+			border: 1px solid #e8ecf3;
+			border-radius: 24px;
+			background: #fff;
+			box-shadow: 0 24px 70px rgba(32, 52, 87, .12);
+		}
+		.form-panel { display: flex; flex-direction: column; justify-content: center; padding: 64px clamp(30px, 7vw, 76px); }
+		.brand { display: flex; align-items: center; gap: 11px; margin-bottom: 54px; color: #182230; font-size: 17px; font-weight: 750; letter-spacing: -.3px; }
+		.brand-mark { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 12px; color: #fff; background: #4263eb; }
+		.brand-mark svg { width: 21px; height: 21px; }
+		h1 { margin: 0 0 10px; font-size: clamp(28px, 4vw, 35px); letter-spacing: -1.2px; }
+		.intro { margin: 0 0 34px; color: #748094; font-size: 15px; line-height: 1.6; }
+		.field { margin-bottom: 20px; }
+		label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 650; }
+		input[type="email"], input[type="password"], input[type="text"] {
+			width: 100%; height: 48px; padding: 0 14px; border: 1px solid #dfe4ed; border-radius: 9px;
+			outline: none; color: #182230; background: #fff; font: inherit; font-size: 14px; transition: border-color .2s, box-shadow .2s;
+		}
+		input:focus { border-color: #4263eb; box-shadow: 0 0 0 3px rgba(66, 99, 235, .13); }
+		input::placeholder { color: #a0a9b8; }
+		.password-wrap { position: relative; }
+		.password-wrap input { padding-right: 76px; }
+		.toggle-password { position: absolute; top: 50%; right: 12px; transform: translateY(-50%); border: 0; padding: 5px; color: #4263eb; background: transparent; font: inherit; font-size: 12px; font-weight: 650; cursor: pointer; }
+		.options { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 1px 0 25px; font-size: 13px; }
+		.remember { display: flex; align-items: center; gap: 8px; color: #647084; cursor: pointer; }
+		.remember input { width: 15px; height: 15px; margin: 0; accent-color: #4263eb; }
+		a { color: #4263eb; text-decoration: none; font-weight: 600; }
+		a:hover { text-decoration: underline; }
+		.submit-button { width: 100%; min-height: 48px; border: 0; border-radius: 9px; color: #fff; background: #4263eb; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 7px 16px rgba(66, 99, 235, .2); transition: background .2s, transform .2s; }
+		.submit-button:hover { transform: translateY(-1px); background: #3454d1; }
+		.submit-button:focus-visible, .toggle-password:focus-visible, a:focus-visible { outline: 3px solid #a8b8ff; outline-offset: 3px; }
+		.help { margin: 26px 0 0; text-align: center; color: #8490a1; font-size: 13px; }
+		.visual-panel { position: relative; display: flex; align-items: flex-end; overflow: hidden; padding: 56px; color: #fff; background: linear-gradient(145deg, #304dc5, #263b91 70%, #1f3075); }
+		.visual-panel::before, .visual-panel::after { position: absolute; content: ""; border: 1px solid rgba(255,255,255,.13); border-radius: 50%; }
+		.visual-panel::before { width: 480px; height: 480px; top: -145px; right: -165px; }
+		.visual-panel::after { width: 350px; height: 350px; top: -80px; right: -100px; }
+		.visual-content { position: relative; z-index: 1; max-width: 380px; }
+		.visual-icon { display: grid; width: 58px; height: 58px; place-items: center; margin-bottom: 25px; border: 1px solid rgba(255,255,255,.22); border-radius: 17px; background: rgba(255,255,255,.12); backdrop-filter: blur(8px); }
+		.visual-icon svg { width: 29px; height: 29px; }
+		.visual-content h2 { margin: 0 0 14px; font-size: clamp(25px, 3.3vw, 34px); line-height: 1.2; letter-spacing: -.8px; }
+		.visual-content p { margin: 0; color: rgba(255,255,255,.77); font-size: 15px; line-height: 1.7; }
+		.copyright { position: absolute; right: 28px; bottom: 22px; color: rgba(255,255,255,.55); font-size: 11px; }
+		@media (max-width: 720px) {
+			body { padding: 18px; }
+			.login-shell { min-height: 0; max-width: 480px; grid-template-columns: 1fr; border-radius: 18px; }
+			.form-panel { padding: 36px clamp(24px, 8vw, 48px) 40px; }
+			.brand { margin-bottom: 38px; }
+			.visual-panel { display: none; }
+		}
+		@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+	</style>
+</head>
+<body>
+	<main class="login-shell">
+		<section class="form-panel" aria-labelledby="login-title">
+			<div class="brand">
+				<span class="brand-mark" aria-hidden="true">
+					<svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5 9.2 17 19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+				</span>
+				<span>Portal Central</span>
+			</div>
+			<h1 id="login-title">Bienvenido de nuevo</h1>
+			<p class="intro">Ingresa tus datos para acceder a tu cuenta.</p>
+
+			<form action="#" method="post">
+				<div class="field">
+					<label for="email">Correo electrónico</label>
+					<input id="email" name="email" type="email" placeholder="nombre@empresa.com" autocomplete="username" required>
+				</div>
+				<div class="field">
+					<label for="password">Contraseña</label>
+					<div class="password-wrap">
+						<input id="password" name="password" type="password" placeholder="Ingresa tu contraseña" autocomplete="current-password" required>
+						<button class="toggle-password" type="button" aria-controls="password" aria-label="Mostrar contraseña" aria-pressed="false">Mostrar</button>
+					</div>
+				</div>
+				<div class="options">
+					<label class="remember"><input type="checkbox" name="remember"> <span>Recordarme</span></label>
+					<a href="#recuperar">¿Olvidaste tu contraseña?</a>
+				</div>
+				<button class="submit-button" type="submit">Iniciar sesión</button>
+			</form>
+			<p id="login-error" class="intro" role="alert" hidden></p>
+			<p class="help">¿Necesitas ayuda? <a href="mailto:soporte@empresa.com">Contacta con soporte</a></p>
+		</section>
+
+		<aside class="visual-panel" aria-label="Acceso seguro al sistema">
+			<div class="visual-content">
+				<span class="visual-icon" aria-hidden="true">
+					<svg viewBox="0 0 24 24" fill="none"><path d="M12 3 19 6v5c0 4.7-2.9 8.1-7 10-4.1-1.9-7-5.3-7-10V6l7-3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+				</span>
+				<h2>Todo lo que necesitas, en un solo lugar.</h2>
+				<p>Accede a tu espacio de trabajo de forma sencilla y segura.</p>
+			</div>
+			<span class="copyright">© 2025 Portal Central</span>
+		</aside>
+	</main>
+	<script src="/auth.js"></script>
+	<script>
+		const passwordInput = document.getElementById('password');
+		const toggleButton = document.querySelector('.toggle-password');
+		const loginForm = document.querySelector('form');
+		const loginError = document.getElementById('login-error');
+		toggleButton.addEventListener('click', () => {
+			const showPassword = passwordInput.type === 'password';
+			passwordInput.type = showPassword ? 'text' : 'password';
+			toggleButton.textContent = showPassword ? 'Ocultar' : 'Mostrar';
+			toggleButton.setAttribute('aria-pressed', String(showPassword));
+			toggleButton.setAttribute('aria-label', showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña');
+		});
+		loginForm.addEventListener('submit', async event => {
+			event.preventDefault();
+			loginError.hidden = true;
+			const submitButton = loginForm.querySelector('button[type="submit"]');
+		
+            submitButton.disabled = true;
+			submitButton.textContent = 'Iniciando sesión…';
+			try {
+				if (!window.supabaseAuth) {
+					throw new Error('No se cargó la conexión. En VS Code abre la terminal en la carpeta del proyecto y ejecuta: npm run dev. Después entra a http://localhost:3000.');
+				}
+				await window.supabaseAuth.signIn(
+					document.getElementById('email').value.trim(),
+					passwordInput.value,
+					loginForm.querySelector('[name="remember"]').checked
+				);
+				window.location.assign('/sistema.html');
+			} catch (error) {
+				loginError.textContent = error.message;
+				loginError.hidden = false;
+			} finally {
+				submitButton.disabled = false;
+				submitButton.textContent = 'Iniciar sesión';
+			}
+		});
+	</script>
+</body>
+</html>

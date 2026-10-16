@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Inventario de Almacén</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        :root {
+            font-family: Arial, sans-serif;
+            color: #18343b;
+            background: #a9e4e5;
+        }
+
+        body {
+            margin: 0;
+            min-width: 320px;
+            padding: 18px;
+        }
+
+        .container {
+            width: min(1500px, 100%);
+            margin: auto;
+            overflow: hidden;
+            background: #e8ffff;
+            border: 1px solid #5e9fa3;
+            box-shadow: 0 8px 24px rgba(24, 68, 72, 0.18);
+        }
+
+        .topbar {
+            display: grid;
+            grid-template-columns: minmax(230px, 1fr) minmax(280px, 1.4fr) auto;
+            align-items: center;
+            gap: 22px;
+            min-height: 86px;
+            padding: 14px 22px;
+            color: #fff;
+            background: #16434a;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .brand-mark {
+            display: grid;
+            width: 43px;
+            height: 43px;
+            place-items: center;
+            border: 2px solid #a9e4e5;
+            border-radius: 50%;
+            color: #16434a;
+            background: #a9e4e5;
+            font-size: 23px;
+            font-weight: 800;
+        }
+
+        .brand-name {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .brand-caption {
+            margin: 4px 0 0;
+            color: #b6d8d9;
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .search-form {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-label {
+            flex: 0 0 auto;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        input, select {
+            width: 100%;
+            min-width: 0;
+            padding: 9px 10px;
+            border: 1px solid #a9c5c6;
+            border-radius: 3px;
+            color: #18343b;
+            background: #fff;
+            font: inherit;
+            font-size: 13px;
+        }
+
+        input:focus, select:focus {
+            outline: 2px solid #42aeb3;
+            outline-offset: 1px;
+        }
+
+        button {
+            border: none;
+            border-radius: 3px;
+            padding: 9px 13px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s ease;
+        }
+
+        button:focus-visible {
+            outline: 3px solid #f3c557;
+            outline-offset: 2px;
+        }
+
+        .search-button, .save-btn {
+            color: #fff;
+            background: #13545c;
+        }
+
+        .search-button:hover, .save-btn:hover {
+            background: #0e4047;
+        }
+
+        .clock {
+            min-width: 130px;
+            text-align: right;
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1.7;
+            white-space: nowrap;
+        }
+
+        .clock time {
+            display: block;
+            color: #b6d8d9;
+            font-size: 12px;
+            font-weight: 400;
+        }
+
+        .logout-button {
+            margin-top: 8px;
+            color: #16434a;
+            background: #a9e4e5;
+        }
+
+        .logout-button:hover {
+            background: #c5f0f1;
+        }
+
+        .module-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 10px 22px 0;
+            border-bottom: 1px solid #a7cfd0;
+            background: #e8ffff;
+        }
+
+        .module-tabs a {
+            display: inline-block;
+            padding: 10px 16px;
+            border: 1px solid #a7cfd0;
+            border-bottom: 0;
+            border-radius: 5px 5px 0 0;
+            color: #245c62;
+            background: #d8f0f0;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .module-tabs a[aria-current="page"] {
+            color: #fff;
+            background: #26727a;
+        }
+
+        .module-tabs a:focus-visible {
+            outline: 3px solid #f3c557;
+            outline-offset: 2px;
+        }
+
+        .page-heading {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 18px 22px 12px;
+        }
+
+        .page-heading h1 {
+            margin: 0;
+            color: #163f46;
+            font-size: 19px;
+        }
+
+        .product-count {
+            color: #456c71;
+            font-size: 12px;
+        }
+
+        .inventory-message {
+            margin: 0;
+            padding: 0 22px 12px;
+            color: #8a341f;
+            font-size: 13px;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.7fr);
+            align-items: start;
+            gap: 16px;
+            padding: 0 22px 22px;
+        }
+
+        .panel {
+            min-width: 0;
+            border: 1px solid #a7cfd0;
+            background: #f7ffff;
+        }
+
+        .panel-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 42px;
+            padding: 10px 13px;
+            border-bottom: 1px solid #a7cfd0;
+            color: #fff;
+            background: #26727a;
+        }
+
+        .panel-heading h2 {
+            margin: 0;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .form-content {
+            padding: 14px;
+        }
+
+        .form-layout {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px 10px;
+        }
+
+        .form-group {
+            display: flex;
+            min-width: 0;
+            flex-direction: column;
+        }
+
+        .form-group.wide {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            margin-bottom: 5px;
+            color: #31565b;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+
+        .save-btn {
+            flex: 1;
+        }
+
+        .clear-btn {
+            color: #294c51;
+            background: #d4eeee;
+        }
+
+        .clear-btn:hover {
+            background: #bfe2e3;
+        }
+
+        .table-wrap {
+            max-height: 590px;
+            overflow: auto;
+        }
+
+        .category-table + .category-table {
+            margin-top: 18px;
+        }
+
+        .category-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 0;
+            padding: 10px 12px;
+            border-bottom: 1px solid #a7cfd0;
+            color: #245c62;
+            background: #e5f6f6;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        .category-count {
+            color: #547176;
+            font-size: 11px;
+            font-weight: 400;
+            text-transform: none;
+        }
+
+        table {
+            width: 100%;
+            min-width: 760px;
+            border-collapse: collapse;
+            background: #fff;
+        }
+
+        th, td {
+            border: 1px solid #d5e5e5;
+            padding: 9px 8px;
+            text-align: left;
+            font-size: 12px;
+            vertical-align: middle;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            color: #274d52;
+            background: #ccebec;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f3fbfb;
+        }
+
+        tbody tr {
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: #d9f1f2;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .normal {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .low {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .critical {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .row-actions {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .row-btn {
+            padding: 6px 8px;
+            font-size: 11px;
+            color: white;
+        }
+
+        .consultar {
+            background: #0d6efd;
+        }
+
+        .consultar:hover {
+            background: #0b5ed7;
+        }
+
+        .actualizar {
+            background: #fd7e14;
+        }
+
+        .actualizar:hover {
+            background: #e96b00;
+        }
+
+        .eliminar {
+            background: #dc3545;
+        }
+
+        .eliminar:hover {
+            background: #bb2d3b;
+        }
+
+        .empty {
+            text-align: center;
+            color: #547176;
+            font-style: italic;
+        }
+
+        @media (max-width: 900px) {
+            .topbar {
+                grid-template-columns: 1fr auto;
+            }
+
+            .search-form {
+                grid-column: 1 / -1;
+                grid-row: 2;
+            }
+
+            .workspace {
+                grid-template-columns: minmax(250px, 0.75fr) minmax(0, 1.5fr);
+            }
+        }
+
+        @media (max-width: 680px) {
+            body {
+                padding: 8px;
+            }
+
+            .topbar {
+                grid-template-columns: 1fr auto;
+                gap: 12px;
+                padding: 14px;
+            }
+
+            .brand-name {
+                font-size: 17px;
+            }
+
+            .clock {
+                min-width: auto;
+                font-size: 12px;
+            }
+
+            .search-form {
+                flex-wrap: wrap;
+            }
+
+            .search-label {
+                width: 100%;
+            }
+
+            .page-heading {
+                align-items: flex-start;
+                flex-direction: column;
+                padding: 16px 14px 10px;
+            }
+
+            .module-tabs {
+                padding-right: 14px;
+                padding-left: 14px;
+            }
+
+            .module-tabs a {
+                flex: 1;
+                padding-right: 8px;
+                padding-left: 8px;
+                text-align: center;
+            }
+
+            .workspace {
+                grid-template-columns: 1fr;
+                padding: 0 14px 14px;
+            }
+
+            .table-wrap {
+                max-height: 420px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="topbar">
+            <div class="brand">
+                <div class="brand-mark" aria-hidden="true">H</div>
+                <div>
+                    <p class="brand-name">ALMACEN TANUAVI</p>
+                    <p class="brand-caption">Warehouse · Inventario</p>
+                </div>
+            </div>
+
+            <form class="search-form" id="inventory-search">
+                <label class="search-label" for="search-item">BUSCAR ITEM</label>
+                <input type="search" id="search-item" placeholder="Código, producto o categoría" autocomplete="off">
+                <button class="search-button" type="submit">BUSCAR</button>
+            </form>
+
+            <div class="clock" aria-label="Fecha y hora actuales">
+                <span id="current-date"></span>
+                <time id="current-time"></time>
+                <button type="button" class="logout-button" id="logout-button">Cerrar sesión</button>
+            </div>
+        </header>
+
+        <nav class="module-tabs" aria-label="Secciones del sistema">
+            <a href="/sistema.html" aria-current="page">Inventario</a>
+            <a href="/bitacoradelimpieza.html">Bitácora de limpieza</a>
+            <a href="/inventarioTanuavi.html">Inventario Tanuavi</a>
+            <a href="/inventarioFreshWay.html">Inventario FreshWay</a>
+        </nav>
+
+        <div class="page-heading">
+            <h1>Control de Inventario de Almacén</h1>
+            <span class="product-count" id="product-count" aria-live="polite"></span>
+        </div>
+        <p id="inventory-message" class="inventory-message" role="status" aria-live="polite" hidden></p>
+
+        <main class="workspace">
+            <section class="panel" aria-labelledby="form-heading">
+                <div class="panel-heading">
+                    <h2 id="form-heading">Registro de artículos</h2>
+                </div>
+                <div class="form-content">
+                    <form id="product-form">
+                        <div class="form-layout">
+                            <div class="form-group">
+                                <label for="codigo">Código / ID</label>
+                                <input type="text" id="codigo" placeholder="Ej. P-001" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="categoria">Categoría</label>
+                                <select id="categoria" required>
+                                    <option value="">Seleccione</option>
+                                    <optgroup label="Materiales">
+                                        <option value="Acero y metal">Acero y metal</option>
+                                        <option value="Cemento y concreto">Cemento y concreto</option>
+                                        <option value="Madera">Madera</option>
+                                        <option value="Pinturas y acabados">Pinturas y acabados</option>
+                                        <option value="Plomería">Plomería</option>
+                                    </optgroup>
+                                    <optgroup label="Productos">
+                                        <option value="Ferretería">Ferretería</option>
+                                        <option value="Hogar">Hogar</option>
+                                        <option value="Limpieza">Limpieza</option>
+                                        <option value="Tecnología">Tecnología</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+
+                            <div class="form-group wide">
+                                <label for="nombre">Descripción del producto</label>
+                                <input type="text" id="nombre" placeholder="Ej. Laptop Lenovo" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cantidad">Cantidad</label>
+                                <input type="number" id="cantidad" min="0" placeholder="Ej. 15" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="precio">Precio unitario</label>
+                                <input type="number" id="precio" min="0" step="0.01" placeholder="Ej. 3500" required>
+                            </div>
+
+                            <div class="form-group wide">
+                                <label for="proveedor">Proveedor</label>
+                                <input type="text" id="proveedor" placeholder="Ej. TecnoMax" required>
+                            </div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button type="submit" class="save-btn">AGREGAR ARTÍCULO</button>
+                            <button type="button" class="clear-btn" id="clear-form">LIMPIAR</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <section class="panel" aria-labelledby="inventory-heading">
+                <div class="panel-heading">
+                    <h2 id="inventory-heading">Inventario de artículos</h2>
+                </div>
+                <div class="table-wrap" id="inventory-tables">
+                    <section class="category-table" aria-labelledby="materials-heading">
+                        <h3 class="category-heading" id="materials-heading">
+                            Materiales
+                            <span class="category-count" id="materials-count"></span>
+                        </h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Descripción</th>
+                                    <th>Categoría</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio unitario</th>
+                                    <th>Proveedor</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="materials-body"></tbody>
+                        </table>
+                    </section>
+
+                    <section class="category-table" aria-labelledby="products-heading">
+                        <h3 class="category-heading" id="products-heading">
+                            Productos
+                            <span class="category-count" id="products-count"></span>
+                        </h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Descripción</th>
+                                    <th>Categoría</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio unitario</th>
+                                    <th>Proveedor</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="products-body"></tbody>
+                        </table>
+                    </section>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="/auth.js"></script>
+    <script>
+        let products = [];
+        let selectedId = null;
+
+        const form = document.getElementById('product-form');
+        const inventoryTables = document.getElementById('inventory-tables');
+        const categoryGroups = new Map(
+            Array.from(document.querySelectorAll('#categoria optgroup')).flatMap(group =>
+                Array.from(group.querySelectorAll('option'), option => [option.value, group.label])
+            )
+        );
+        const categoryBodies = {
+            Materiales: document.getElementById('materials-body'),
+            Productos: document.getElementById('products-body')
+        };
+        const clearButton = document.getElementById('clear-form');
+        const searchForm = document.getElementById('inventory-search');
+        const searchInput = document.getElementById('search-item');
+        const productCount = document.getElementById('product-count');
+        const inventoryMessage = document.getElementById('inventory-message');
+
+        function setMessage(message = '') {
+            inventoryMessage.textContent = message;
+            inventoryMessage.hidden = !message;
+        }
+
+        async function loadProducts() {
+            products = await window.supabaseAuth.request('/api/productos');
+            renderTable();
+            setMessage();
+        }
+
+        function escapeHtml(value) {
+            return String(value).replace(/[&<>"']/g, character => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            })[character]);
+        }
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('current-date').textContent = new Intl.DateTimeFormat('es-MX', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            }).format(now);
+            document.getElementById('current-time').textContent = new Intl.DateTimeFormat('es-MX', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }).format(now);
+        }
+
+        function getStatus(cantidad) {
+            if (cantidad <= 5) {
+                return { label: 'Crítico', className: 'critical' };
+            }
+            if (cantidad <= 15) {
+                return { label: 'Bajo', className: 'low' };
+            }
+            return { label: 'Normal', className: 'normal' };
+        }
+
+        function renderTable() {
+            const query = searchInput.value.trim().toLocaleLowerCase('es');
+            const visibleProducts = products.filter(product =>
+                [product.codigo, product.nombre, product.categoria, product.proveedor]
+                    .some(value => value.toLocaleLowerCase('es').includes(query))
+            );
+
+            productCount.textContent = query
+                ? `${visibleProducts.length} de ${products.length} artículos`
+                : `${products.length} artículos registrados`;
+
+            Object.entries(categoryBodies).forEach(([group, tbody]) => {
+                const groupProducts = visibleProducts.filter(product =>
+                    (categoryGroups.get(product.categoria) || 'Productos') === group
+                );
+                const countElement = document.getElementById(
+                    group === 'Materiales' ? 'materials-count' : 'products-count'
+                );
+                countElement.textContent = `${groupProducts.length} artículo${groupProducts.length === 1 ? '' : 's'}`;
+
+                if (groupProducts.length === 0) {
+                    const message = query
+                        ? 'No hay coincidencias en esta categoría.'
+                        : `No hay artículos registrados en ${group.toLocaleLowerCase('es')}.`;
+                    tbody.innerHTML = `<tr><td colspan="8" class="empty">${message}</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = groupProducts.map(product => {
+                    const status = getStatus(product.cantidad);
+                    return `
+                        <tr data-id="${product.id}" class="product-row">
+                            <td>${escapeHtml(product.codigo)}</td>
+                            <td>${escapeHtml(product.nombre)}</td>
+                            <td>${escapeHtml(product.categoria)}</td>
+                            <td>${product.cantidad}</td>
+                            <td>$${Number(product.precio).toLocaleString('es-MX')}</td>
+                            <td>${escapeHtml(product.proveedor)}</td>
+                            <td><span class="status ${status.className}">${status.label}</span></td>
+                            <td>
+                                <div class="row-actions">
+                                    <button type="button" class="row-btn consultar" data-action="consultar">Consultar</button>
+                                    <button type="button" class="row-btn actualizar" data-action="actualizar">Actualizar</button>
+                                    <button type="button" class="row-btn eliminar" data-action="eliminar">Eliminar</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            });
+        }
+
+        function fillForm(product) {
+            document.getElementById('codigo').value = product.codigo;
+            document.getElementById('categoria').value = product.categoria;
+            document.getElementById('nombre').value = product.nombre;
+            document.getElementById('cantidad').value = product.cantidad;
+            document.getElementById('precio').value = product.precio;
+            document.getElementById('proveedor').value = product.proveedor;
+            selectedId = product.id;
+            const submitButton = form.querySelector('button[type="submit"]');
+            submitButton.textContent = 'Actualizar producto';
+        }
+
+        function clearForm() {
+            form.reset();
+            selectedId = null;
+            const submitButton = form.querySelector('button[type="submit"]');
+            submitButton.textContent = 'Guardar producto';
+        }
+
+        form.addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const product = {
+                codigo: document.getElementById('codigo').value.trim(),
+                categoria: document.getElementById('categoria').value,
+                nombre: document.getElementById('nombre').value.trim(),
+                cantidad: Number(document.getElementById('cantidad').value),
+                precio: Number(document.getElementById('precio').value),
+                proveedor: document.getElementById('proveedor').value.trim()
+            };
+
+            if (
+                !product.codigo || !product.categoria || !product.nombre || !product.proveedor ||
+                !Number.isSafeInteger(product.cantidad) || product.cantidad < 0 ||
+                !Number.isFinite(product.precio) || product.precio < 0
+            ) {
+                window.alert('Completa todos los campos correctamente.');
+                return;
+            }
+
+            const submitButton = form.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            try {
+                if (selectedId === null) {
+                    await window.supabaseAuth.request('/api/productos', {
+                        method: 'POST',
+                        body: product
+                    });
+                } else {
+                    await window.supabaseAuth.request(`/api/productos/${encodeURIComponent(selectedId)}`, {
+                        method: 'PATCH',
+                        body: product
+                    });
+                }
+                await loadProducts();
+                clearForm();
+            } catch (error) {
+                setMessage(error.message);
+            } finally {
+                submitButton.disabled = false;
+            }
+        });
+
+        clearButton.addEventListener('click', clearForm);
+
+        searchInput.addEventListener('input', renderTable);
+        searchForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            renderTable();
+        });
+
+        inventoryTables.addEventListener('click', async function (event) {
+            if (!(event.target instanceof Element)) return;
+            const row = event.target.closest('tr[data-id]');
+            if (!row) return;
+
+            const product = products.find(item => item.id === row.dataset.id);
+            if (!product) return;
+
+            const button = event.target.closest('button');
+            const action = button?.dataset.action;
+            if (action === 'consultar') {
+                fillForm(product);
+                window.alert('Artículo consultado: ' + product.nombre);
+            } else if (action === 'actualizar') {
+                fillForm(product);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (action === 'eliminar') {
+                if (!window.confirm('¿Deseas eliminar este artículo?')) return;
+                try {
+                    await window.supabaseAuth.request(
+                        `/api/productos/${encodeURIComponent(product.id)}`,
+                        { method: 'DELETE' }
+                    );
+                    await loadProducts();
+                    if (selectedId === product.id) clearForm();
+                } catch (error) {
+                    setMessage(error.message);
+                }
+            } else if (!button) {
+                fillForm(product);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+
+        document.getElementById('logout-button').addEventListener('click', async () => {
+            try {
+                await window.supabaseAuth.signOut();
+                window.location.assign('/login.html');
+            } catch (error) {
+                setMessage(error.message);
+            }
+        });
+
+        updateClock();
+        window.setInterval(updateClock, 1000);
+        loadProducts().catch(error => setMessage(error.message));
+    </script>
+</body>
+</html>

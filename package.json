@@ -1,0 +1,19 @@
+{
+  "name": "handyman-inventory",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@supabase/server": "^1.9.2",
+    "dotenv": "^16.6.1",
+    "exceljs": "^4.4.0",
+    "nodemailer": "^10.1.1"
+  }
+}
